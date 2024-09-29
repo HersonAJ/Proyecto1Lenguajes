@@ -4,12 +4,15 @@
  */
 package Frontend;
 
+import Backend.AnalizadorCodigoFuente;
+import Backend.Token;
 import com.formdev.flatlaf.FlatLightLaf;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -19,6 +22,7 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -29,8 +33,6 @@ public class Interface extends JFrame {
     private JComboBox<Integer> colSelector;
     private JTextArea textArea1;
     private JTable table;
- 
-
 
     public Interface() {
         // Aplicar el Look and Feel de FlatLaf
@@ -63,8 +65,8 @@ public class Interface extends JFrame {
 
         // Crear la tabla con la estructura especificada
         String[] columnNames = {"Token", "Expresion Regular", "Lenguaje", "Tipo", "Fila", "Columna"};
-        Object[][] data = {}; // Datos vacíos por ahora
-        table = new JTable(data, columnNames);
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+        table = new JTable(tableModel);
         JScrollPane tableScrollPane = new JScrollPane(table);
 
         // Configurar el layout del JFrame usando GridBagLayout
@@ -91,8 +93,6 @@ public class Interface extends JFrame {
         JButton boton = new JButton("Aceptar");
         JButton saveButton = new JButton("Generar Reporte HTML");
 
-
-
         // Configurar el botón de Aceptar
         gbc.gridx = 0;
         gbc.gridy = 2;
@@ -114,12 +114,32 @@ public class Interface extends JFrame {
         add(saveButton, gbc);
 
         // Añadir acción al botón de Aceptar
-        boton.addActionListener(new ActionListener(){
+        boton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String codigoFuente = textArea1.getText();
-
+                AnalizadorCodigoFuente analizador = new AnalizadorCodigoFuente();
+                analizador.analizarCodigo(codigoFuente);
+                List<Token> tokensValidados = analizador.getTokensValidados();
+                actualizarTabla(tokensValidados);
             }
         });
+    }
+
+    private void actualizarTabla(List<Token> tokensValidados) {
+        DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
+        tableModel.setRowCount(0); // Limpiar la tabla
+
+        for (Token token : tokensValidados) {
+            Object[] rowData = {
+                token.getToken(),
+                token.getExpresionRegular(),
+                token.getLenguaje(),
+                token.getTipo(),
+                token.getFila(),
+                token.getColumna()
+            };
+            tableModel.addRow(rowData);
+        }
     }
 }
