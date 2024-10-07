@@ -4,7 +4,7 @@
  */
 package Frontend;
 
-import Backend.AnalizadorCodigoFuente;
+import Backend.AnalizadorLexico;
 import Backend.Token;
 import com.formdev.flatlaf.FlatLightLaf;
 import java.awt.BorderLayout;
@@ -118,7 +118,8 @@ public class Interface extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String codigoFuente = textArea1.getText();
-                AnalizadorCodigoFuente analizador = new AnalizadorCodigoFuente();
+                System.out.println("Codigo fuente recibido:\n" + codigoFuente);
+                AnalizadorLexico analizador = new AnalizadorLexico();
                 analizador.analizarCodigo(codigoFuente);
                 List<Token> tokensValidados = analizador.getTokensValidados();
                 actualizarTabla(tokensValidados);
