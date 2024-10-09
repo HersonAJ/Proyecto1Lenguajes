@@ -16,6 +16,9 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -32,7 +35,10 @@ public class Interface extends JFrame {
     private JComboBox<Integer> rowSelector;
     private JComboBox<Integer> colSelector;
     private JTextArea textArea1;
+    private JTextArea textArea2; // Nuevo JTextArea
+    private AnalizadorLexico analizador = new AnalizadorLexico();
     private JTable table;
+    private OptimizarCodigo optimizador;
 
     public Interface() {
         // Aplicar el Look and Feel de FlatLaf
@@ -63,11 +69,20 @@ public class Interface extends JFrame {
         jPanel1.setLayout(new BorderLayout());
         jPanel1.add(scrollPane, BorderLayout.CENTER);
 
+        // Crear el nuevo JTextArea no editable
+        textArea2 = new JTextArea();
+        textArea2.setEditable(false);
+        JScrollPane textArea2ScrollPane = new JScrollPane(textArea2);
+        
+        
+        
         // Crear la tabla con la estructura especificada
         String[] columnNames = {"Token", "Expresion Regular", "Lenguaje", "Tipo", "Fila", "Columna"};
         DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
         table = new JTable(tableModel);
-        JScrollPane tableScrollPane = new JScrollPane(table);
+        JScrollPane tableScrollPane = new JScrollPane(table);        
+        
+        
 
         // Configurar el layout del JFrame usando GridBagLayout
         setLayout(new GridBagLayout());
@@ -81,13 +96,13 @@ public class Interface extends JFrame {
         gbc.fill = GridBagConstraints.BOTH;
         add(jPanel1, gbc);
 
-        // Configurar tableScrollPane
+        // Configurar textArea2ScrollPane en lugar de la tabla
         gbc.gridx = 1;
         gbc.gridy = 0;
         gbc.weightx = 0.5;
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
-        add(tableScrollPane, gbc);
+        add(textArea2ScrollPane, gbc);
 
         // Crear el botón
         JButton boton = new JButton("Aceptar");
@@ -103,7 +118,6 @@ public class Interface extends JFrame {
         gbc.anchor = GridBagConstraints.PAGE_END;
         add(boton, gbc);
 
-        // Configurar el botón de guardar imagen
         gbc.gridx = 1;
         gbc.gridy = 2;
         gbc.gridwidth = 2;
@@ -118,13 +132,47 @@ public class Interface extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String codigoFuente = textArea1.getText();
-                System.out.println("Codigo fuente recibido:\n" + codigoFuente);
-                AnalizadorLexico analizador = new AnalizadorLexico();
+                //System.out.println("Codigo fuente recibido:\n" + codigoFuente);
                 analizador.analizarCodigo(codigoFuente);
                 List<Token> tokensValidados = analizador.getTokensValidados();
                 actualizarTabla(tokensValidados);
+                
+                
+                
+                
+                optimizador = new OptimizarCodigo(codigoFuente, textArea2);
+                optimizador.optimizar();
+                
+                
             }
         });
+
+        // Crear la barra de menú
+        JMenuBar menuBar = new JMenuBar();
+        JMenu reportesMenu = new JMenu("Reportes");
+        JMenuItem reporteTokensItem = new JMenuItem("Reporte de tokens");
+
+        // Añadir acción al menú item "Reporte de tokens"
+        reporteTokensItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFrame reporteFrame = new JFrame("Reporte de tokens");
+                reporteFrame.setSize(800, 600);
+                reporteFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+                // Crear una nueva tabla para el reporte
+                JTable reporteTable = new JTable(table.getModel());
+                JScrollPane reporteScrollPane = new JScrollPane(reporteTable);
+                reporteFrame.add(reporteScrollPane);
+
+                reporteFrame.setVisible(true);
+            }
+        });
+
+        // Añadir el menú item al menú y el menú a la barra de menú
+        reportesMenu.add(reporteTokensItem);
+        menuBar.add(reportesMenu);
+        setJMenuBar(menuBar);
     }
 
     private void actualizarTabla(List<Token> tokensValidados) {
@@ -143,4 +191,7 @@ public class Interface extends JFrame {
             tableModel.addRow(rowData);
         }
     }
+
+
 }
+
