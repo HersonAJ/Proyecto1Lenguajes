@@ -5,6 +5,7 @@
 package Frontend;
 
 import Backend.AnalizadorLexico;
+import Backend.OptimizarCodigo;
 import Backend.Token;
 import com.formdev.flatlaf.FlatLightLaf;
 import java.awt.BorderLayout;
