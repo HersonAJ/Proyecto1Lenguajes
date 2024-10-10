@@ -5,6 +5,8 @@
 package Backend;
 
 import Backend.AnalizadorCSS.AnalizadorCSS;
+import Backend.AnalizadorHTML.AnalizadorHTML;
+import Backend.AnalizadorHTML.TokenHTML;
 import Backend.AnalizadorJS.AnalizadorJS;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +24,10 @@ public class AnalizadorLexico {
     private List<String> errores;
     private String analizadorActual;
     private List<Token> tokensValidados;
-    private AnalizadorCSS analizadorCSS; // Instancia del analizador CSS
-    private AnalizadorJS analizadorJS; // Instancia del analizador JS
+    private AnalizadorCSS analizadorCSS; 
+    private AnalizadorJS analizadorJS; 
+    private AnalizadorHTML analizadorHTML; 
+    private TokenHTML tokenHTML; 
 
     public AnalizadorLexico() {
         this.posicionActual = 0;
@@ -32,8 +36,10 @@ public class AnalizadorLexico {
         this.tokens = new ArrayList<>();
         this.errores = new ArrayList<>();
         this.tokensValidados = new ArrayList<>();
-        this.analizadorCSS = new AnalizadorCSS(); // Inicializar el analizador CSS
-        this.analizadorJS = new AnalizadorJS(); // Inicializar el analizador JS
+        this.analizadorCSS = new AnalizadorCSS();
+        this.analizadorJS = new AnalizadorJS();
+        this.analizadorHTML = new AnalizadorHTML();
+        this.tokenHTML = new TokenHTML(); 
     }
 
     public void analizarCodigo(String codigo) {
@@ -53,8 +59,12 @@ public class AnalizadorLexico {
                 System.out.println("Analizando con: " + analizadorActual);
                 List<String> tokens;
                 if ("HTML".equals(analizadorActual)) {
-                    tokens = tokenizarLineaHTML(linea);
-                    // Aquí se llamaría al analizadorHTML para validar los tokens
+                    tokens = tokenHTML.tokenizarEtiquetas(linea);
+                    tokens.addAll(tokenHTML.tokenizarAtributos(linea));
+                    tokens.addAll(tokenHTML.tokenizarCadenas(linea));
+                    System.out.println("Tokens generados: " + tokens); // Depuración
+                    List<Token> tokensValidadosLinea = analizadorHTML.analizarTokens(tokens, fila);
+                    tokensValidados.addAll(tokensValidadosLinea);
                 } else if ("CSS".equals(analizadorActual)) {
                     tokens = tokenizarCSS(linea);
                     System.out.println("Tokens generados: " + tokens); // Depuración
@@ -79,11 +89,6 @@ public class AnalizadorLexico {
         } else if (linea.startsWith(">>[js]")) {
             analizadorActual = "JavaScript";
         }
-    }
-
-    private List<String> tokenizarLineaHTML(String linea) {
-        // Implementación para tokenizar HTML
-        return new ArrayList<>();
     }
 
     private List<String> tokenizarCSS(String linea) {
@@ -157,8 +162,6 @@ public class AnalizadorLexico {
 
         return tokens;
     }
-    
-    
     
 
     public List<Token> getTokens() {

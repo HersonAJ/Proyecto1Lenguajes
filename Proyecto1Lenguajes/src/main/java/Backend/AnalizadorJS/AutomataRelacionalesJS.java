@@ -68,17 +68,6 @@ public class AutomataRelacionalesJS {
         return esRelacionalValido(tokenCompleto.toString());
     }
 
-    public static void main(String[] args) {
-        AutomataRelacionalesJS automata = new AutomataRelacionalesJS();
-        List<String> tokensSeparados = List.of(">", "=");
-        
-        boolean resultado = automata.unirYValidarTokens(tokensSeparados);
-        if (resultado) {
-            System.out.println("Token válido: " + String.join("", tokensSeparados));
-        } else {
-            System.out.println("Token no válido: " + String.join("", tokensSeparados));
-        }
-    }
 }
 
 
